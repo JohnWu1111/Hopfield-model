@@ -5,10 +5,10 @@ format long
 tic;
 
 % Definition of parameters
-n = 12; %size
+n = 20; %size
 tmax = 1e8; % eventnumber
 
-Tmax = 1; %temperature
+Tmax = 0.8; %temperature
 Tmin = 0.05;
 Tstep = 0.05;
 T = Tmin:Tstep:Tmax;
@@ -18,15 +18,16 @@ skip = 1e7;
 
 spin = round(rand(n))*2-1;
 
-Cv = zeros(1,round((Tmax-Tmin)/Tstep+1));
+m2_std = zeros(1,round((Tmax-Tmin)/Tstep+1));
 
 % parameters of memeory
-N = 3;
+N = 5;
 mem_con = cell(2,1);
 for i = 1:N
     mem_con{i} = round(rand(n))*2-1;
 end
 
+spintotal = zeros(N,tmax);
 % Temperature loop
 for j = 1:nT
     T(j)
@@ -90,16 +91,24 @@ for j = 1:nT
             Ett = Ett + dEt;
         end
         
-        Etotal(i) = Ett;
+        for k = 1:N
+            temp = mem_con{k};
+            spintotal(k,i) = mean(spin.*temp,'all')^2;
+        end
+        
+%         Etotal(i) = Ett;
 %         spintotal(i) = mean(mean(spin));
     end
+    m2 = sqrt(mean(spintotal,2));
+    m2_std(j) = std(m2);
     
-    Cv(j) = var(Etotal)/T(j)^2;  
+%     Cv(j) = var(Etotal)/T(j)^2;  
     
 end
+
 figure;
-plot(T,Cv);
+plot(T,m2_std);
 xlabel('T')
-ylabel('Cv')
+ylabel('m2-std')
 
 toc;
