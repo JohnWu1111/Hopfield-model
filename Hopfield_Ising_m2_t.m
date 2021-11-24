@@ -21,7 +21,7 @@ spin = round(rand(n))*2-1;
 m2_std = zeros(1,round((Tmax-Tmin)/Tstep+1));
 
 % parameters of memeory
-N = 5;
+N = 2;
 mem_con = cell(2,1);
 for i = 1:N
     mem_con{i} = round(rand(n))*2-1;

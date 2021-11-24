@@ -5,7 +5,7 @@ format long
 tic;
 
 % Definition of parameters
-n = 50; %size
+n = 8; %size
 
 tmax = 1e7; % eventnumber
 tstep = 1e4;
