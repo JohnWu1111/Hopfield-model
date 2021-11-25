@@ -5,10 +5,10 @@ format long
 tic;
 
 % Definition of parameters
-N = 1000;
+N = 12;
 num = 1e4;
 
-p = 2:100;
+p = 2:10;
 
 count = zeros(num,length(p));
 
