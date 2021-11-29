@@ -5,7 +5,7 @@ format long
 tic;
 
 % Definition of parameters 
-N = 20;%size
+N = 10;%size
 p = 2;
 
 % parameters of memeory
@@ -28,6 +28,8 @@ Jij = Jij/N;
 for i = 1:N
     coeff_save2{i} = coeff_save((i-1)*N+1:i*N);
 end
+
+overlap12 = mean(mem_con{1}.*mem_con{2})
 
 fname = ['mem_N',num2str(N),'_p',num2str(p),'_No1.mat'];
 save(fname,'mem_con','coeff_save2','Jij','-v7.3');

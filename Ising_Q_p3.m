@@ -4,18 +4,16 @@ clc;
 format long
 tic;
 
-% global dt H
-
 % Definition of parameters
-N = 16; %size
-dt = 0.1;
-T = 100;
+N = 12; %size
+dt = 10;
+T = 10000;
 t = 0:dt:T;
 nt = length(t);
 
-p = 2;
+p = 3;
 
-h = 0.1;
+h = 0.3;
 
 % Cv = zeros(1,round((Tmax-Tmin)/Tstep+1));
 
@@ -34,8 +32,10 @@ h = 0.1;
 % end
 % Jij = Jij/N;
 
-load('mem_N16_p2_No1.mat')
-% overlap = mean(mem_con{1}.*mem_con{2})
+load('mem_N12_p3_No1.mat')
+overlap12 = mean(mem_con{1}.*mem_con{2})
+overlap13 = mean(mem_con{1}.*mem_con{3})
+overlap23 = mean(mem_con{2}.*mem_con{3})
 
 sigma_x = sparse([0,1;1,0]);
 sigma_z = sparse([1,0;0,-1]);
@@ -99,63 +99,40 @@ spin1 = sigma_z(:,temp1(1));
 temp2 = mem_con{2};
 temp2 = round((temp2+1)/2)+1;
 spin2 = sigma_z(:,temp2(1));
+temp3 = mem_con{3};
+temp3 = round((temp3+1)/2)+1;
+spin3 = sigma_z(:,temp3(1));
 for i = 2:N
     spin1 = kron(spin1,sigma_z(:,temp1(i)));
     spin2 = kron(spin2,sigma_z(:,temp2(i)));
+    spin3 = kron(spin3,sigma_z(:,temp3(i)));
 end
 
 m1 = zeros(1,nt);
 m1(1) = 1;
 m2 = zeros(1,nt);
 m2(1) = spin2'*spin1;
+m3 = zeros(1,nt);
+m3(1) = spin3'*spin1;
 
-spin = full(spin1);
-% spin = gpuArray(spin0);
+% spin = spin0;
+spin = gpuArray(spin1);
 % H = gpuArray(H);
-% trans = expm(-1i*H*dt);
-% trans = gpuArray(trans);
+trans = expm(-1i*H*dt);
+trans = gpuArray(trans);
 for i = 2:nt
-%     spin = runge(spin);
-    c1 = -1i*H*spin;
-    c2 = -1i*H*(spin+c1.*dt/2);
-    c3 = -1i*H*(spin+c2.*dt/2);
-    c4 = -1i*H*(spin+c3.*dt);
-    spin = spin + dt*(c1+2*c2+2*c3+c4)/6;
+    spin = trans*spin;
     m1(i) = spin'*spin1;
     m2(i) = spin'*spin2;
+    m3(i) = spin'*spin3;
 end
-
 m1 = abs(m1);
 m2 = abs(m2);
+m3 = abs(m3);
 
 figure;
-plot(t,m1,t,m2);
+plot(t,m1,t,m2,t,m3);
+
+
 
 toc;
-
-% function y = f(x)
-%     global H
-%     y = -1i*H*x;
-% end
-% 
-% function y = runge(y0) 
-%     global dt
-%     y = y0;
-%     
-%     c1 = f(y);
-%     c2 = f(y+c1.*dt/2);
-%     c3 = f(y+c2.*dt/2);
-%     c4 = f(y+c3.*dt);
-%     y = y + dt*(c1+2*c2+2*c3+c4)/6;
-% end
-% 
-% function y = runge(y0) 
-%     global dt H
-%     y = y0;
-%     
-%     c1 = -1i*H*y;
-%     c2 = -1i*H*(y+c1.*dt/2);
-%     c3 = -1i*H*(y+c2.*dt/2);
-%     c4 = -1i*H*(y+c3.*dt);
-%     y = y + dt*(c1+2*c2+2*c3+c4)/6;
-% end
