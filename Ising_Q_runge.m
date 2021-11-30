@@ -6,10 +6,12 @@ tic;
 
 % global dt H
 
+maxNumCompThreads(1);
+
 % Definition of parameters
 N = 16; %size
 dt = 0.1;
-T = 100;
+T = 10;
 t = 0:dt:T;
 nt = length(t);
 

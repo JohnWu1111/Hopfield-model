@@ -10,7 +10,7 @@ tic;
 N = 14; %size
 p = 2;
 h = 0.3;
-fname = ['H\H_N',num2str(N),'_p',num2str(p),'_No6.mat'];
+fname = ['H\H_N',num2str(N),'_p',num2str(p),'_No10.mat'];
 
 % parameters of memeory
 mem_con = cell(p,1);
@@ -26,7 +26,7 @@ for k = 1:p
 end
 Jij = Jij/N;
 
-% load('mem_N10_p2_No1.mat')
+% load('mem_N12_p2_No5.mat')
 overlap = mean(mem_con{1}.*mem_con{2})
 
 sigma_x = sparse([0,1;1,0]);
@@ -85,6 +85,6 @@ for i = 2:N
     H = H + h.*H2;
 end
 
-save(fname,'H','-v7.3');
+save(fname,'H','mem_con','-v7.3');
 
 toc;
