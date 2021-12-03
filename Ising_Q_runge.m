@@ -6,8 +6,6 @@ tic;
 
 % global dt H
 
-maxNumCompThreads(1);
-
 % Definition of parameters
 N = 16; %size
 dt = 0.1;
@@ -17,24 +15,7 @@ nt = length(t);
 
 p = 2;
 
-h = 0.1;
-
-% Cv = zeros(1,round((Tmax-Tmin)/Tstep+1));
-
-% parameters of memeory
-
-% mem_con = cell(p,1);
-% Jij = zeros(N,N);
-% for k = 1:p
-%     mem_con{k} = round(rand(1,N))*2-1;
-%     temp = mem_con{k};
-%     for i = 1:N
-%         for j = i+1:N
-%             Jij(i,j) = Jij(i,j) + temp(i)*temp(j);
-%         end
-%     end
-% end
-% Jij = Jij/N;
+h = 0.3;
 
 load('mem_N16_p2_No1.mat')
 % overlap = mean(mem_con{1}.*mem_con{2})

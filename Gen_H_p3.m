@@ -7,16 +7,17 @@ tic;
 % global dt H
 
 % Definition of parameters
-N = 18; %size
-p = 2;
+N = 14; %size
+p = 3;
 h = 0.3;
 num = 1e4;
-target = 5/9;
-fname = ['H\H_N',num2str(N),'_p',num2str(p),'_No6.mat'];
+target = 0;
+fname = ['H\H_N',num2str(N),'_p',num2str(p),'_No19.mat'];
+
+load(strcat('H\H_N',num2str(N),'_p2','_No19.mat'))
 
 % parameters of memeory
 for n = 1:num
-    mem_con = cell(p,1);
     Jij = zeros(N,N);
     for k = 1:p
         mem_con{k} = round(rand(1,N))*2-1;
