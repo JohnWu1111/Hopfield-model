@@ -7,7 +7,7 @@ tic;
 % global dt H
 
 % Definition of parameters
-N = 2; %size
+N = 26; %size
 p = 2;
 NN = 2^N;
 sum = 0;

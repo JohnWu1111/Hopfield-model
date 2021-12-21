@@ -8,7 +8,7 @@ tic;
 
 % Definition of parameters
 N = 16; %size
-dt = 0.1;
+dt = 0.01;
 T = 10;
 t = 0:dt:T;
 nt = length(t);

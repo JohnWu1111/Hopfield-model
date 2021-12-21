@@ -5,10 +5,10 @@ format long
 tic;
 
 % Definition of parameters
-N = 12;
-num = 1e4;
+N = 53;
+num = 1e6;
 
-p = 2:10;
+p = 3;
 
 count = zeros(num,length(p));
 
@@ -52,8 +52,8 @@ end
 per = mean(count);
 per_std = std(count);
 
-figure;
-errorbar(p,per,per_std);
+% figure;
+% errorbar(p,per,per_std);
 % m2 = sqrt(mean(spintotal,2))
 
 

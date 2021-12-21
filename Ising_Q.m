@@ -5,7 +5,7 @@ format long
 tic;
 
 % Definition of parameters
-N = 12; %size
+N = 10; %size
 dt = 1;
 T = 1000;
 t = 0:dt:T;
@@ -13,7 +13,7 @@ nt = length(t);
 
 p = 2;
 
-h = 0.3;
+h = 5;
 
 % Cv = zeros(1,round((Tmax-Tmin)/Tstep+1));
 
@@ -32,7 +32,7 @@ h = 0.3;
 % end
 % Jij = Jij/N;
 
-load('mem_N12_p2_No5.mat')
+load('mem_N10_p2_No1.mat')
 overlap = mean(mem_con{1}.*mem_con{2})
 
 sigma_x = sparse([0,1;1,0]);

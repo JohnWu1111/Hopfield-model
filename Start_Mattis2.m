@@ -5,8 +5,8 @@ format long
 tic;
 
 % Definition of parameters
-N0 = 10:200;
-num = 1e4;
+N0 = 53:56;
+num = 1e5;
 
 stop = zeros(1,length(N0));
 

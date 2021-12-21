@@ -7,12 +7,12 @@ tic;
 % global dt H
 
 % Definition of parameters
-N = 18; %size
+N = 20; %size
 p = 2;
 h = 0.3;
-num = 1e4;
-target = 5/9;
-fname = ['H\H_N',num2str(N),'_p',num2str(p),'_No6.mat'];
+num = 1e5;
+target = 0.7;
+fname = ['H\H_N',num2str(N),'_p',num2str(p),'_No8.mat'];
 
 % parameters of memeory
 for n = 1:num
