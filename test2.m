@@ -1,30 +1,23 @@
-load('H\H_N14_p2_No1.mat');
-[row,col,v] = find(H);
+I = 4;
 
-N = 14;
+I4 = mod(I-1,N4+1)+1;
+II = (I-I4)/(N4+1) + 1;
+I3 = mod(II-1,N3+1)+1;
+II = (II-I3)/(N3+1) + 1;
+I2 = mod(II-1,N2+1)+1;
+I1 = (II-I2)/(N2+1) + 1;
 
-temp1 = mem_con{1};
-temp1a = round((-temp1 + 1) / 2) + 1;
-temp1 = round((temp1 + 1) / 2) + 1;
-spin1 = sigma_z(:, temp1(1));
-spin1a = sigma_z(:, temp1a(1));
+s1 = zeros(N1+1,1);
+s2 = zeros(N2+1,1);
+s3 = zeros(N3+1,1);
+s4 = zeros(N4+1,1);
+s1(1) = 1;
+s2(1) = 1;
+s3(1) = 1;
+s4(end) = 1;
 
-temp2 = mem_con{2};
-temp2a = round((-temp2 + 1) / 2) + 1;
-temp2 = round((temp2 + 1) / 2) + 1;
-spin2 = sigma_z(:, temp2(1));
-spin2a = sigma_z(:, temp2a(1));
+ss = kron4(s1,s2,s3,s4);
 
-for i = 2:N
-    spin1 = kron(spin1, sigma_z(:, temp1(i)));
-    spin1a = kron(spin1a, sigma_z(:, temp1a(i)));
-    spin2 = kron(spin2, sigma_z(:, temp2(i)));
-    spin2a = kron(spin2a, sigma_z(:, temp2a(i)));
+function y = kron4(a,b,c,d)
+y = kron(kron(kron(a,b),c),d);
 end
-
-[r1,c1] = find(spin1);
-[r1a,c1a] = find(spin1);
-[r2,c2] = find(spin2);
-[r2a,c2a] = find(spin2a);
-
-save('H_N14_p2_No1.txt','r1','r1a','r2','r2a','row','col','v','-ascii');

@@ -5,7 +5,7 @@ format long
 tic;
 
 % Definition of parameters
-N = 80;% 56
+N = 40;% 56
 
 p = 3;
 J = 1;
@@ -18,10 +18,9 @@ for i = N:-1:ceil(N/4)
         temp2 = min(N,2*j-i);
         temp3 = max(ceil((N+j)/2),j);
         for k = temp2:-1:temp3
-            if i == j-i || i == k-j || i == N-k || j-i == k-j || j-i == N-k || k-j == N-k
-                continue
-            end
-            count = count +1;
+            if (i == k-i && N-k>0)|| (j-i == N-k+i && k-j>0)|| (k-j == N-k+i && j-i>0)|| (N-k == k-i && j-i>0)
+                count = count +1;
+            end            
         end
     end
 end
@@ -40,14 +39,13 @@ for i = N:-1:ceil(N/4)
         temp2 = min(N,2*j-i);
         temp3 = max(ceil((N+j)/2),j);
         for k = temp2:-1:temp3
-            if i == j-i || i == k-j || i == N-k || j-i == k-j || j-i == N-k || k-j == N-k
-                continue
+            if (i == k-i && N-k>0)|| (j-i == N-k+i && k-j>0)|| (k-j == N-k+i && j-i>0)|| (N-k == k-i && j-i>0)
+                count = count +1;
+                N1_s(count,1) = i;
+                N2_s(count,1) = j-i;
+                N3_s(count,1) = k-j;
+                N4_s(count,1) = N-k;
             end
-            count = count +1;
-            N1_s(count,1) = i;
-            N2_s(count,1) = j-i;
-            N3_s(count,1) = k-j;
-            N4_s(count,1) = N-k;
         end
     end
 end
@@ -160,9 +158,9 @@ temp2 = N2ol*temp1'/2;
 ol(:,1:4) = GS(:,1:4);
 ol(:,5:7) = temp2(1:3,:)';
 
-ol = sortrows(ol,[6 7],'ComparisonMethod','abs');
+ol = sortrows(ol,[4 3 2 1],'ComparisonMethod','abs');
 
-save(strcat('p3_pattern\p3_nondeg_N',num2str(N),'.mat'),'GS','ol','count','-v7.3');
+save(strcat('p3_pattern\p3_fruct_N',num2str(N),'.mat'),'GS','ol','count','-v7.3');
 
 toc;
 
