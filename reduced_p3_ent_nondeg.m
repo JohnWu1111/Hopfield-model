@@ -11,7 +11,7 @@ J = 1;
 
 N = 20;
 No = 1;
-h = 2;
+h = 0.1;
 
 rng(1e4 * No);
 
@@ -57,6 +57,17 @@ while isdeg(N1, N2, N3, N4)
     end
 
 end
+
+temp = rearrange([N1,N2,N3,N4]);
+N1 = temp(1);
+N2 = temp(2);
+N3 = temp(3);
+N4 = temp(4);
+
+% N1 = 1;
+% N2 = 1;
+% N3 = 1;
+% N4 = 0;
 
 NN = (N1 + 1) * (N2 + 1) * (N3 + 1) * (N4 + 1);
 
@@ -134,7 +145,7 @@ Jij = [3 2 2 2;
 
 % construction of Hamiltonian
 H1 = -J * (3 * kron(S1_z.^2, ones((N2 + 1) * (N3 + 1) * (N4 + 1), 1)) ...
-+ 3 * kron3(ones(N1 + 1, 1), S2_z.^2, ones((N3 + 1) * (N4 + 1), 1)) ...
+    + 3 * kron3(ones(N1 + 1, 1), S2_z.^2, ones((N3 + 1) * (N4 + 1), 1)) ...
     +3 * kron3(ones((N1 + 1) * (N2 + 1), 1), S3_z.^2, ones(N4 + 1, 1)) ...
     +3 * kron(ones((N1 + 1) * (N2 + 1) * (N3 + 1), 1), S4_z.^2) ... %inner term
     +2 * kron3(S1_z, kron(S2_z, ones(N3 + 1, 1)) + kron(ones(N2 + 1, 1), S3_z), ones(N4 + 1, 1)) ...
@@ -156,113 +167,57 @@ e = diag(D);
 clear H D;
 
 VV = V.^2;
-clear V
 
-% order parameter
-M2 = cell(p, 1);
-M2{1} = kron_p4(S1_z, S2_z, S3_z, S4_z).^2;
-M2{2} = kron_p4(S1_z, S2_z, -S3_z, -S4_z).^2;
-M2{3} = kron_p4(S1_z, -S2_z, S3_z, -S4_z).^2;
+num_r = (N2 + 1) * (N3 + 1) * (N4 + 1);
+E12 = zeros((N1+1),num_r);
+S12 = zeros(NN,1);
+for n = 1:NN
+        for i = 1:N1+1
+            for j = 1:num_r
+                pos = (i-1)*num_r+j;
+                E12(i,j) = V(pos,n);
+            end
+        end
+        R12 = zeros(N1+1);
+        for j = 1:num_r
+            temp = E12(:,j);
+            temp1 = temp*temp';
+            R12 = R12 + temp1;
+        end
+%         R12 = zeros(num_r);
+%         for i = 1:N1+1
+%             temp = E12(i,:);
+%             temp1 = temp'*temp;
+%             R12 = R12 + temp1;
+%         end
 
-mm = zeros(p, NN);
-
-for i = 1:p
-    mm(i, :) = sqrt(M2{i}' * VV) / N;
+%     sigmax = kron(2*S1_x,eye(num_r));
+%     sigmaz = diag(kron(2*S1_z,ones(num_r,1)));
+%     I2 = eye(2);
+%     V1 = V(:,n);
+%     P1 = (V1'*sigmax*V1).*S1_x;
+%     P2 = (V1'*sigmaz*V1)*diag(S1_z);
+%     R12 = P1+P2+I2/2;
+    
+    [RV,RD] = eig(R12);
+    for k = 1:length(RD)
+        if abs(RD(k,k))<1e-14
+            RD(k,k) = 1;
+        end
+    end
+    RE = diag(RD);
+    temp3 = - trace(RD*diag(log(RE)));
+    S12(n) = real(temp3);
 end
 
-% SG chi
-sus = zeros(1, NN);
-
-for i = 1:len_p
-
-    if N_s(i) == 0
-        continue
-    end
-
-    temp = 1;
-
-    for k = 1:i - 1
-        temp = kron(temp, ones(N_s(k) + 1, 1));
-    end
-
-    temp = kron(temp, 4 * S_z{i}.^2);
-
-    for k = i + 1:len_p
-        temp = kron(temp, ones(N_s(k) + 1, 1));
-    end
-
-    temp1 = temp' * VV;
-
-    if N_s(i) > 1
-        temp2 = temp1 - N_s(i);
-        temp1 = N_s(i) + temp2.^2 / (2 * nchoosek(N_s(i), 2));
-    else
-        temp1 = 1;
-    end
-
-    sus = sus + temp1;
-    %         sus(n) = sus(n) + mean(temp.^2);
-
-    for j = i + 1:len_p
-
-        if N_s(j) == 0
-            continue
-        end
-
-        temp = 1;
-
-        for k = 1:i - 1
-            temp = kron(temp, ones(N_s(k) + 1, 1));
-        end
-
-        temp = kron(temp, 2 * S_z{i});
-
-        for k = i + 1:j - 1
-            temp = kron(temp, ones(N_s(k) + 1, 1));
-        end
-
-        temp = kron(temp, 2 * S_z{j});
-
-        for k = j + 1:len_p
-            temp = kron(temp, ones(N_s(k) + 1, 1));
-        end
-
-        temp1 = temp' * VV;
-        %             sus(n) = sus(n) + mean(temp.^2);
-        sus = sus + 2 * temp1.^2 / (N_s(i) * N_s(j));
-    end
-
-end
-
-sus = sus / N;
-
-% phi4
-phi4 = sum(VV.^2);
-
-% energy distribution
-len = length(e);
-e = sort(e);
-s = zeros(len - 1, 1);
-r = zeros(len - 2, 1);
-
-for i = 1:len - 1
-    s(i) = e(i + 1) - e(i);
-end
-
-for i = 1:len - 2
-    r(i) = s(i + 1) / s(i);
-end
-
-q = min([r 1 ./ r], [], 2);
-
-save(strcat('main_N', num2str(N), '_p', num2str(p), '_h', num2str(h), '_No', num2str(No), '.mat'), 'N_s', 'sus', 'mm', 'phi4', 'h', 'e', 'r', 's', 'q', '-v7.3');
-
+% save(strcat('main_N', num2str(N), '_p', num2str(p), '_h', num2str(h), '_No', num2str(No), '.mat'), 'N_s', 'sus', 'mm', 'phi4', 'h', 'e', 'r', 's', 'q', '-v7.3');
+% 
 figure;
-plot(1:NN, mm);
+plot(1:NN,S12);
 xlabel('\epsilon')
-ylabel('order parameter')
-saveas(gcf, strcat('order_N', num2str(N), '_p', num2str(p), '_No', num2str(No), '.fig'));
-print(strcat('order_N', num2str(N), '_p', num2str(p), '_No', num2str(No)), '-dpng', '-r0');
+ylabel('entanglement')
+% saveas(gcf, strcat('ratio_N', num2str(N), '_p', num2str(p), '_No', num2str(No), '.fig'));
+% print(strcat('ratio_N', num2str(N), '_p', num2str(p), '_No', num2str(No)), '-dpng', '-r0');
 
 toc;
 
@@ -295,7 +250,40 @@ end
 
 function y = isdeg(a,b,c,d)
     y = 0;
-    if a == d && b == c 
-        y = 1;
+    A = [a,b,c,d];
+    A = sort(A);
+    for i = 1:3
+        for j = i+1:4
+            t = A(j) - A(i);
+            if t == 0
+                y = 1;
+                return
+            end
+        end
     end
+end
+
+function y = rearrange(A)
+    y = A;
+    [~,I] = max(A);
+    if I == 4
+        temp = y(1);
+        y(1) = y(4);
+        y(4) = temp;
+    end
+    if I == 2
+        temp = y(1);
+        y(1) = y(2);
+        y(2) = y(4);
+        y(4) = y(3);
+        y(3) = temp;
+    end
+    if I == 3
+        temp = y(1);
+        y(1) = y(3);
+        y(3) = y(4);
+        y(4) = y(2);
+        y(2) = temp;
+    end       
+
 end

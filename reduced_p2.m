@@ -5,14 +5,16 @@ format long
 tic;
 
 % Definition of parameters
-N = 16; %size
-dt = 5;
-T = 50000;
+N = 10; %size
+dt = 1;
+T = 1000;
 t = 0:dt:T;
 nt = length(t);
-J = 1*2^2;
-h = 0.3*2;
-ol = 0;
+% J = 1*2^2;
+% h = 0.3*2;
+J = 1;
+h = 5;
+ol = 2;
 N1 = N/2 + ol;
 N2 = N/2 - ol;
 

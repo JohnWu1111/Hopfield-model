@@ -5,7 +5,7 @@ format long
 tic;
 
 % Definition of parameters
-N = 80;% 56
+N = 22;% 56
 
 p = 3;
 J = 1;
@@ -160,7 +160,7 @@ temp2 = N2ol*temp1'/2;
 ol(:,1:4) = GS(:,1:4);
 ol(:,5:7) = temp2(1:3,:)';
 
-ol = sortrows(ol,[6 7],'ComparisonMethod','abs');
+ol = sortrows(ol,[1 2 3 4],'ComparisonMethod','abs');
 
 save(strcat('p3_pattern\p3_nondeg_N',num2str(N),'.mat'),'GS','ol','count','-v7.3');
 

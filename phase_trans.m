@@ -5,37 +5,15 @@ format long
 tic;
 
 % Definition of parameters
-N = 56; %size
+N = 40; %size
 J = 1;
-h = 0.15;
+h = 0.1:0.01:0.5;
 No = 1;
 
-% N1 = 6;
-% N2 = 5;
-% N3 = 4;
-% N4 = 5;
-% N2ol = [1 1 -1 -1;
-%     1 -1 1 -1;
-%     1 -1 -1 1;
-%     1 1 1 1];
-% temp = N2ol*[N1,N2,N3,N4]';
-% ol_12 = temp(1)/2;
-% ol_13 = temp(2)/2;
-% ol_23 = temp(3)/2;
-
-% ol_12 = 1;
-% ol_13 = 1;
-% ol_23 = 0;
-% N2ol = [1 1 -1 -1;
-%     1 -1 1 -1;
-%     1 -1 -1 1;
-%     1 1 1 1];
-% temp = N2ol\(2*[ol_12,ol_13,ol_23,N]');
-% % temp = inv(N2ol)*[ol_12,ol_13,ol_23,N]';
-% N1 = temp(1);
-% N2 = temp(2);
-% N3 = temp(3);
-% N4 = temp(4);
+lh = length(h);
+pro1 = zeros(lh,1);
+pro2 = zeros(lh,1);
+pro3 = zeros(lh,1);
 
 load(strcat('p3_pattern\p3_nondeg_N',num2str(N),'.mat'));
 % N1 = ol(end-No+1,1);
@@ -109,23 +87,6 @@ S2_x = (S2_p + S2_m)/2;
 S3_x = (S3_p + S3_m)/2;
 S4_x = (S4_p + S4_m)/2;
 
-% construction of Hamiltonian
-H1 = -J*(3*kron(S1_z.^2,ones((N2+1)*(N3+1)*(N4+1),1))...
-        +3*kron3(ones(N1+1,1),S2_z.^2,ones((N3+1)*(N4+1),1))...
-        +3*kron3(ones((N1+1)*(N2+1),1),S3_z.^2,ones(N4+1,1))...
-        +3*kron(ones((N1+1)*(N2+1)*(N3+1),1),S4_z.^2)...%inner term
-        +2*kron3(S1_z,kron(S2_z,ones(N3+1,1))+kron(ones(N2+1,1),S3_z),ones(N4+1,1))...
-        +2*kron3(ones(N1+1,1),kron(S2_z,ones(N3+1,1))+kron(ones(N2+1,1),S3_z),S4_z)...
-        -2*kron4(ones(N1+1,1),S2_z,S3_z,ones(N4+1,1))...
-        -2*kron3(S1_z,ones((N2+1)*(N3+1),1),S4_z))/(2*N);
-H1 = diag(H1);
-H2 = h*(kron(S1_x,eye((N2+1)*(N3+1)*(N4+1)))...
-    +kron3(eye(N1+1),S2_x,eye((N3+1)*(N4+1)))...
-    +kron3(eye((N1+1)*(N2+1)),S3_x,eye(N4+1))...
-    +kron(eye((N1+1)*(N2+1)*(N3+1)),S4_x));
-H = H1 + H2;
-% H = H1;
-
 spin1 = zeros(NN,1);
 spin1a = zeros(NN,1);
 spin1(1) = 1;
@@ -161,19 +122,42 @@ temp3(end) = 1;
 temp4(1) = 1;
 spin3a = kron4(temp1,temp2,temp3,temp4);
 
-H = sparse(H);
-[V,D] = eigs(H,1,'smallestreal');
-pro1 = spin1'*V(:,1);
-pro2 = spin2'*V(:,1);
-pro3 = spin3'*V(:,1);
+% construction of Hamiltonian
+H1 = -J*(3*kron(S1_z.^2,ones((N2+1)*(N3+1)*(N4+1),1))...
+        +3*kron3(ones(N1+1,1),S2_z.^2,ones((N3+1)*(N4+1),1))...
+        +3*kron3(ones((N1+1)*(N2+1),1),S3_z.^2,ones(N4+1,1))...
+        +3*kron(ones((N1+1)*(N2+1)*(N3+1),1),S4_z.^2)...%inner term
+        +2*kron3(S1_z,kron(S2_z,ones(N3+1,1))+kron(ones(N2+1,1),S3_z),ones(N4+1,1))...
+        +2*kron3(ones(N1+1,1),kron(S2_z,ones(N3+1,1))+kron(ones(N2+1,1),S3_z),S4_z)...
+        -2*kron4(ones(N1+1,1),S2_z,S3_z,ones(N4+1,1))...
+        -2*kron3(S1_z,ones((N2+1)*(N3+1),1),S4_z))/(2*N);
+H1 = diag(H1);
 
-% e = H;
-% E1 = H(1);
-% E2 = spin2'*e;
-% E3 = spin3'*e;
-% e = sort(e);
+for n = 1:lh
+    H2 = h(n)*(kron(S1_x,eye((N2+1)*(N3+1)*(N4+1)))...
+        +kron3(eye(N1+1),S2_x,eye((N3+1)*(N4+1)))...
+        +kron3(eye((N1+1)*(N2+1)),S3_x,eye(N4+1))...
+        +kron(eye((N1+1)*(N2+1)*(N3+1)),S4_x));
+    H = H1 + H2;
+    
+    H = sparse(H);
+    [V,D] = eigs(H,2,'smallestreal');
+    pro1(n) = spin1'*(V(:,1)+V(:,2));
+    pro2(n) = spin2'*(V(:,1)+V(:,2));
+    pro3(n) = spin3'*(V(:,1)+V(:,2));
+end
 
-pro = abs([pro1 pro2 pro3]);
+pro1 = abs(pro1);
+pro2 = abs(pro2);
+pro3 = abs(pro3);
+
+figure;
+subplot(2,2,1)
+plot(h,pro1)
+subplot(2,2,2)
+plot(h,pro2)
+subplot(2,2,3)
+plot(h,pro3)
 
 toc;
 

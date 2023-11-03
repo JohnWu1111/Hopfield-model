@@ -5,28 +5,32 @@ format long
 tic;
 
 % Definition of parameters
-N = 12; %size
+N = 23; %size
 dt = 0.1;
 T = 1000;
 t = 0:dt:T;
 nt = length(t);
 J = 1;
 h = 0.1;
-No = 30;
-cut = nt;
+No = 1;
+cut = 1000;
+f = 1e-3;
 
-% N1 = 6;
-% N2 = 5;
-% N3 = 4;
-% N4 = 5;
-% N2ol = [1 1 -1 -1;
-%     1 -1 1 -1;
-%     1 -1 -1 1;
-%     1 1 1 1];
-% temp = N2ol*[N1,N2,N3,N4]';
-% ol_12 = temp(1)/2;
-% ol_13 = temp(2)/2;
-% ol_23 = temp(3)/2;
+
+
+N1 = 7;
+N2 = 7;
+N3 = 5;
+N4 = 4;
+N = N1 + N2 + N3 + N4;
+N2ol = [1 1 -1 -1;
+    1 -1 1 -1;
+    1 -1 -1 1;
+    1 1 1 1];
+temp = N2ol*[N1,N2,N3,N4]';
+ol_12 = temp(1)/2;
+ol_13 = temp(2)/2;
+ol_23 = temp(3)/2;
 
 % ol_12 = 1;
 % ol_13 = 1;
@@ -42,15 +46,16 @@ cut = nt;
 % N3 = temp(3);
 % N4 = temp(4);
 
-load(strcat('p3_pattern\p3_pattern_N',num2str(N),'.mat'));
+% load(strcat('p3_pattern\p3_nondeg_N',num2str(N),'.mat'));
+% ol = sortrows(ol,[5 6 7],'ComparisonMethod','abs');
 % N1 = ol(end-No+1,1);
 % N2 = ol(end-No+1,2);
 % N3 = ol(end-No+1,3);
 % N4 = ol(end-No+1,4);
-N1 = ol(No,1);
-N2 = ol(No,2);
-N3 = ol(No,3);
-N4 = ol(No,4);
+% N1 = ol(No,1);
+% N2 = ol(No,2);
+% N3 = ol(No,3);
+% N4 = ol(No,4);
 % ol_12 = ol(end-No+1,5);
 % ol_13 = ol(end-No+1,6);
 % ol_23 = ol(end-No+1,7);
@@ -168,7 +173,7 @@ spin3a = kron4(temp1,temp2,temp3,temp4);
 % time revolution
 [V,D] = eig(H);
 e = diag(D);
-spin0 = V'*spin1;
+spin0 = V'*spin3;
 % spin0 = gpuArray(spin0);
 % e = gpuArray(e);
 % t = gpuArray(t);

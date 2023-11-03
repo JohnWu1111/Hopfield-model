@@ -6,13 +6,19 @@ tic;
 
 N = 30; %size
 p = 3;
-num = 100;
+num = 10;
 
 q_save = cell(num,1);
 e_save = cell(num,1);
 s_save = cell(num,1);
 count1 = 0;
-for j = 1:num
+
+N1 = 0;
+N2 = 0;
+N3 = 0;
+N4 = 0;
+
+while isdeg(N1, N2, N3, N4)
     mem_con = cell(p,1);
     mem_con{1} = ones(1,N);
     for k = 2:p
@@ -39,48 +45,50 @@ for j = 1:num
         end
     end
     
-%     if N1 == N2 && N2 == N3
-%         continue
-%     end    
-%     if N1 == N2 && N2 == N4
-%         continue
-%     end
-%     if N1 == N3 && N3 == N4
-%         continue
-%     end
+    %     if N1 == N2 && N2 == N3
+    %         continue
+    %     end
+    %     if N1 == N2 && N2 == N4
+    %         continue
+    %     end
+    %     if N1 == N3 && N3 == N4
+    %         continue
+    %     end
+    
+end
 
-    if N1 == N2 || N1 == N3 || N1 == N4 || N2 == N3 || N2 == N4 || N3 == N4
-        continue
-    end
-    
-    count1 = count1 + 1;
-    H = construt(N1,N2,N3,N4,N);
-    % H = gpuArray(H);
-    e = eig(H);
-    % e = gather(e);
-    
-    len = length(e);
-    e = sort(e);
-    s = zeros(len-1,1);
-    r = zeros(len-2,1);
-    for i = 1:len-1
-        s(i) = e(i+1) - e(i);
-    end
-    
-    for i = 1:len-2
-        r(i) = s(i+1)/s(i);
-    end
-    
-    q = min([r 1./r],[],2);
-    
+count1 = count1 + 1;
+H = construt(N1,N2,N3,N4,N);
+% H = gpuArray(H);
+e = eig(H);
+% e = gather(e);
+
+len = length(e);
+%     e = e(1:20);
+%     e = e(round(len*0.1):round(len*0.3));
+%     e = e(round(len/3):round(2*len/3));
+
+len = length(e);
+e = sort(e);
+s = zeros(len-1,1);
+r = zeros(len-2,1);
+for i = 1:len-1
+    s(i) = e(i+1) - e(i);
+end
+
+for i = 1:len-2
+    r(i) = s(i+1)/s(i);
+end
+
+q = min([r 1./r],[],2);
+
 %     qq(count+1:count+len-2,1) = q;
 %     count = count + len-2;
-    q_save{count1,1} = q;
-    e_save{count1,1} = e;
-    s_save{count1,1} = s;
-    
-    % s = sort(s);
-end
+q_save{count1,1} = q;
+e_save{count1,1} = e;
+s_save{count1,1} = s;
+
+% s = sort(s);
 
 count2 = 0;
 for i = 1:count1
@@ -90,8 +98,12 @@ for i = 1:count1
 end
 
 figure;
-histogram(qq,1000,'Normalization','pdf','DisplayStyle','stairs');
+histogram(qq,200,'Normalization','pdf','DisplayStyle','stairs');
 % axis([0 0.02 0 inf])
+
+mean(qq)
+
+%save(strcat('En_diff_N', num2str(N), '_p', num2str(p), '_h0.1', '.mat'), '-v7.3');
 
 % saveas(gcf,strcat('Energy_diff_N',num2str(N),'_p',num2str(p),'_No',num2str(No),'.fig'));
 % print(strcat('Energy_diff_N',num2str(N),'_p',num2str(p),'_No',num2str(No)),'-dpng','-r0');
@@ -101,7 +113,8 @@ toc;
 
 function y = construt(N1,N2,N3,N4,N)
 
-h = 0;
+hx = 2;
+hy = 0;
 J = 1;
 
 NN = (N1+1)*(N2+1)*(N3+1)*(N4+1);
@@ -160,21 +173,30 @@ S2_x = (S2_p + S2_m)/2;
 S3_x = (S3_p + S3_m)/2;
 S4_x = (S4_p + S4_m)/2;
 
+S1_y = (S1_p - S1_m)/(2*1i);
+S2_y = (S2_p - S2_m)/(2*1i);
+S3_y = (S3_p - S3_m)/(2*1i);
+S4_y = (S4_p - S4_m)/(2*1i);
+
 % construction of Hamiltonian
 H1 = -J*(3*kron(S1_z.^2,ones((N2+1)*(N3+1)*(N4+1),1))...
-        +3*kron3(ones(N1+1,1),S2_z.^2,ones((N3+1)*(N4+1),1))...
-        +3*kron3(ones((N1+1)*(N2+1),1),S3_z.^2,ones(N4+1,1))...
-        +3*kron(ones((N1+1)*(N2+1)*(N3+1),1),S4_z.^2)...%inner term
-        +2*kron3(S1_z,kron(S2_z,ones(N3+1,1))+kron(ones(N3+1,1),S2_z),ones(N4+1,1))...
-        +2*kron3(ones(N1+1,1),kron(S2_z,ones(N3+1,1))+kron(ones(N3+1,1),S2_z),S4_z)...
-        -2*kron4(ones(N1+1,1),S2_z,S3_z,ones(N4+1,1))...
-        -2*kron3(S1_z,ones((N2+1)*(N3+1),1),S4_z))/(2*N);
+    +3*kron3(ones(N1+1,1),S2_z.^2,ones((N3+1)*(N4+1),1))...
+    +3*kron3(ones((N1+1)*(N2+1),1),S3_z.^2,ones(N4+1,1))...
+    +3*kron(ones((N1+1)*(N2+1)*(N3+1),1),S4_z.^2)...%inner term
+    +2*kron3(S1_z,kron(S2_z,ones(N3+1,1))+kron(ones(N3+1,1),S2_z),ones(N4+1,1))...
+    +2*kron3(ones(N1+1,1),kron(S2_z,ones(N3+1,1))+kron(ones(N3+1,1),S2_z),S4_z)...
+    -2*kron4(ones(N1+1,1),S2_z,S3_z,ones(N4+1,1))...
+    -2*kron3(S1_z,ones((N2+1)*(N3+1),1),S4_z))/(2*N);
 H1 = diag(H1);
-H2 = h*(kron(S1_x,eye((N2+1)*(N3+1)*(N4+1)))...
+H2 = hx*(kron(S1_x,eye((N2+1)*(N3+1)*(N4+1)))...
     +kron3(eye(N1+1),S2_x,eye((N3+1)*(N4+1)))...
     +kron3(eye((N1+1)*(N2+1)),S3_x,eye(N4+1))...
     +kron(eye((N1+1)*(N2+1)*(N3+1)),S4_x));
-H = H1 + H2;
+H3 = hy*(kron(S1_y,eye((N2+1)*(N3+1)*(N4+1)))...
+    +kron3(eye(N1+1),S2_y,eye((N3+1)*(N4+1)))...
+    +kron3(eye((N1+1)*(N2+1)),S3_y,eye(N4+1))...
+    +kron(eye((N1+1)*(N2+1)*(N3+1)),S4_y));
+H = H1 + H2 + H3;
 y = H;
 
 end
@@ -185,4 +207,20 @@ end
 
 function y = kron3(a,b,c)
 y = (kron(kron(a,b),c));
+end
+
+function y = isdeg(a,b,c,d)
+y = 0;
+if a == d || b == c
+    y = 1;
+    return
+end
+if a == b && c == d
+    y = 1;
+    return
+end
+if a == c && b == d
+    y = 1;
+    return
+end
 end

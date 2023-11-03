@@ -5,7 +5,7 @@ format long
 tic;
 
 % Definition of parameters 
-N = 16;%size
+N = 10;%size
 p = 2;
 
 % parameters of memeory
